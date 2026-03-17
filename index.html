@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Felipe's Tetrachord Ear Trainer</title>
+<meta name="description" content="A customizable ear training tool for recognizing tetrachord types by ear. Based on Ron Miller's Modal Jazz Composition & Harmony.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--bg2:#1a1d2e;--bg3:#242842;--accent:#4f6df5;--accent-dim:rgba(79,109,245,0.12);--green:#2ecc71;--green-dim:rgba(46,204,113,0.15);--red:#e74c3c;--red-dim:rgba(231,76,60,0.1);--text:#e8e8f0;--text2:#8888a8;--border:#2a2d44;--orange:#f39c12}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+#app{max-width:640px;width:100%;flex:1}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.hdr h1{font-size:19px;font-weight:700}
+.hdr-r{display:flex;gap:6px;align-items:center}
+.tabs{display:flex;gap:3px}
+.tab{padding:6px 12px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text2);transition:all .15s}
+.tab.a{background:var(--accent);color:#fff}
+.lng{padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text2);transition:all .15s}
+.lng:hover{border-color:var(--accent)}
+.bp{width:100%;padding:13px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.bp:hover{opacity:.9}
+.br{padding:13px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:15px;cursor:pointer}
+.ctrls{display:flex;gap:8px;margin-bottom:18px}
+.meta{font-size:13px;color:var(--text2);margin-bottom:12px}
+.meta strong{color:var(--text)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ab{padding:13px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;text-align:center;transition:all .15s;color:var(--text)}
+.ab:hover:not(.lk){border-color:var(--accent);background:var(--accent-dim)}
+.ab.ok{border:2px solid var(--green);background:var(--green-dim)}
+.ab.no{border:2px solid var(--red);background:var(--red-dim)}
+.ab .n{font-size:14px;font-weight:600}
+.ab .s{font-size:11px;color:var(--text2);margin-top:3px;font-family:monospace}
+.ab .cat{font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.sts{display:flex;justify-content:center;gap:24px;padding:12px 0;border-top:1px solid var(--border);margin-top:10px;font-size:13px}
+.pct{font-weight:700}
+.g{color:var(--green)}.m{color:var(--orange)}.l{color:var(--red)}
+.rb{background:none;border:none;color:var(--text2);cursor:pointer;text-decoration:underline;font-size:12px}
+h3{font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.sec{margin-bottom:18px}
+.tr{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.tr input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+.tr .tn{flex:1;font-size:13px;font-weight:500}
+.tr .ts{font-size:11px;color:var(--text2);font-family:monospace}
+.tr .rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px}
+.cb{background:var(--bg2);border-radius:10px;padding:12px;margin:14px 0}
+.cb h4{font-size:13px;font-weight:600;margin-bottom:8px}
+.cb .rw{display:flex;gap:8px;flex-wrap:wrap}
+.cb input{flex:1;min-width:100px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px}
+.cb input::placeholder{color:var(--text2)}
+.cb button{padding:7px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.cb .err{color:var(--red);font-size:11px;margin-top:6px}
+.db{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.db button{padding:6px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.db button.a{border:2px solid var(--accent);background:var(--accent-dim)}
+.tmr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.tmr span{font-size:12px;color:var(--text2)}
+.tmr input[type=range]{flex:1;accent-color:var(--accent)}
+.sl{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:8px}
+.sl input{accent-color:var(--accent)}
+.empty{text-align:center;padding:36px;color:var(--text2);font-size:14px}
+.catl{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:10px 0 4px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.qg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.qg button{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.qg button:hover{border-color:var(--accent)}
+.qg button.act{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ig{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ig button{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.ig button.a{border:2px solid var(--accent);background:var(--accent-dim)}
+footer{max-width:640px;width:100%;text-align:center;padding:20px 16px 8px;font-size:11px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);margin-top:20px}
+footer a{color:var(--text2);text-decoration:none}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<footer>
+  <span id="ft"></span>
+</footer>
+<script>
+const TETS=[
+  {name:"Lydian",steps:[2,2,2],cat:"basic"},
+  {name:"Ionian",steps:[2,2,1],cat:"basic"},
+  {name:"Dorian",steps:[2,1,2],cat:"basic"},
+  {name:"Phrygian",steps:[1,2,2],cat:"basic"},
+  {name:"Hungarian Major",steps:[3,1,2],cat:"advanced"},
+  {name:"Hungarian Minor",steps:[2,1,3],cat:"advanced"},
+  {name:"Harmonic",steps:[1,3,1],cat:"advanced"},
+  {name:"Spanish",steps:[1,2,1],cat:"advanced"},
+  {name:"Dorian ♭4",steps:[2,1,1],cat:"super"},
+  {name:"Blues 31",steps:[3,1,1],cat:"super"},
+  {name:"Blues 32",steps:[3,2,1],cat:"super"},
+  {name:"Hungarian Pentatonic",steps:[2,3,1],cat:"super"},
+  {name:"Hungarian Phrygian",steps:[1,2,3],cat:"super"},
+  {name:"Hungarian Spanish",steps:[1,3,2],cat:"super"},
+  {name:"Firebird I",steps:[1,1,4],cat:"super"},
+  {name:"Firebird II",steps:[4,1,1],cat:"super"},
+];
+const CATS=["basic","advanced","super"];
+const NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const INSTRUMENTS={
+  piano:{label:{en:"Piano",es:"Piano"},type:"triangle",filterFreq:2200,attack:0.01,release:0.1},
+  marimba:{label:{en:"Marimba",es:"Marimba"},type:"sine",filterFreq:1800,attack:0.005,release:0.15},
+  organ:{label:{en:"Organ",es:"Órgano"},type:"square",filterFreq:1200,attack:0.02,release:0.05},
+  flute:{label:{en:"Flute",es:"Flauta"},type:"sine",filterFreq:4000,attack:0.03,release:0.12},
+};
+const T={
+  en:{
+    title:"Felipe's Tetrachord Ear Trainer",
+    train:"Train",setup:"Setup",start:"Start",next:"Next",replay:"🔁 Replay",
+    dir:"Direction",up:"Up",down:"Down",updown:"Up & Down",random:"Random",
+    tempo:"Tempo",fast:"Fast",slow:"Slow",
+    showSteps:"Show semitone steps on buttons",
+    tetrachords:"Tetrachords",addCustom:"Add Custom Tetrachord",
+    namePh:"Name",stepsPh:"Steps (e.g. 2 1 3)",add:"Add",
+    basic:"Basic",advanced:"Advanced",super:"Super Advanced",
+    enable2:"Enable at least 2 tetrachords in Setup to start training.",
+    direction:"Direction",root:"Root",reset:"Reset",
+    quickSel:"Quick Select",all:"All",none:"None",
+    instrument:"Instrument",
+    dupErr:"That step combination already exists as: ",
+    footer:'Created by Felipe Jaramillo Fonnegra. Inspired by Ron Miller\'s <em>Modal Jazz Composition & Harmony</em>, Appendix 2.',
+    custom:"Custom"
+  },
+  es:{
+    title:"Entrenamiento Auditivo de Tetracordios",
+    train:"Entrenar",setup:"Configuración",start:"Iniciar",next:"Siguiente",replay:"🔁 Repetir",
+    dir:"Dirección",up:"Ascendente",down:"Descendente",updown:"Asc. y Desc.",random:"Aleatorio",
+    tempo:"Tempo",fast:"Rápido",slow:"Lento",
+    showSteps:"Mostrar semitonos en los botones",
+    tetrachords:"Tetracordios",addCustom:"Agregar tetracordio personalizado",
+    namePh:"Nombre",stepsPh:"Pasos (ej. 2 1 3)",add:"Agregar",
+    basic:"Básico",advanced:"Avanzado",super:"Súper Avanzado",
+    enable2:"Habilita al menos 2 tetracordios en Configuración para empezar.",
+    direction:"Dirección",root:"Raíz",reset:"Reiniciar",
+    quickSel:"Selección rápida",all:"Todos",none:"Ninguno",
+    instrument:"Instrumento",
+    dupErr:"Esa combinación de pasos ya existe como: ",
+    footer:'Creado por Felipe Jaramillo Fonnegra. Inspirado en <em>Modal Jazz Composition & Harmony</em> de Ron Miller, Apéndice 2.',
+    custom:"Personal"
+  }
+};
+
+let S={
+  tets:TETS.map(t=>({...t,on:t.cat==="basic"})),
+  custom:[],
+  dir:"up",tempo:0.45,showSteps:true,view:"train",
+  q:null,sel:null,res:null,correct:0,total:0,
+  lang:"en",inst:"piano",addErr:""
+};
+
+// Audio
+let actx=null;
+function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();return actx;}
+function playNote(midi,t,dur,vol=0.32){
+  const c=getCtx(),ins=INSTRUMENTS[S.inst];
+  const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+  o.type=ins.type;o.frequency.value=440*Math.pow(2,(midi-69)/12);
+  f.type="lowpass";f.frequency.value=ins.filterFreq;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol,t+ins.attack);
+  g.gain.setValueAtTime(vol,t+dur-ins.release);
+  g.gain.linearRampToValueAtTime(0,t+dur);
+  o.connect(f);f.connect(g);g.connect(c.destination);
+  o.start(t);o.stop(t+dur);
+  if(ins.type==="sine"&&S.inst==="flute"){
+    const o2=c.createOscillator(),g2=c.createGain();
+    o2.type="sine";o2.frequency.value=440*Math.pow(2,(midi-69)/12)*2;
+    g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(vol*0.15,t+ins.attack);
+    g2.gain.setValueAtTime(vol*0.15,t+dur-ins.release);g2.gain.linearRampToValueAtTime(0,t+dur);
+    o2.connect(f);g2.connect(c.destination);o2.connect(g2);o2.start(t);o2.stop(t+dur);
+  }
+}
+function playTet(root,steps,dir,tempo){
+  const c=getCtx(),now=c.currentTime+0.05;
+  let ns=[root];let cur=root;
+  for(const s of steps){cur+=s;ns.push(cur);}
+  if(dir==="down")ns=ns.reverse();
+  if(dir==="updown")ns=[...ns,...ns.slice(0,-1).reverse()];
+  ns.forEach((n,i)=>playNote(n,now+i*tempo,tempo+0.05));
+}
+
+function t(k){return T[S.lang][k]||k;}
+function catLabel(c){return c==="basic"?t("basic"):c==="advanced"?t("advanced"):c==="super"?t("super"):t("custom");}
+function allTets(){return [...S.tets,...S.custom];}
+function enabledTets(){return allTets().filter(x=>x.on);}
+
+function findDup(steps){
+  const key=steps.join(",");
+  const all=allTets();
+  for(const t of all){if(t.steps.join(",")===key)return t.name;}
+  return null;
+}
+
+function render(){
+  const en=enabledTets(),pct=S.total>0?Math.round(S.correct/S.total*100):0;
+  let h=`<div class="hdr"><h1>${t("title")}</h1><div class="hdr-r"><div class="tabs">
+    <button class="tab ${S.view==="train"?"a":""}" onclick="sv('train')">${t("train")}</button>
+    <button class="tab ${S.view==="setup"?"a":""}" onclick="sv('setup')">${t("setup")}</button></div>
+    <button class="lng" onclick="tl()">${S.lang==="en"?"ES":"EN"}</button></div></div>`;
+
+  if(S.view==="setup"){
+    // Quick select
+    h+=`<div class="sec"><h3>${t("quickSel")}</h3><div class="qg">`;
+    CATS.forEach(c=>{
+      const tetsInCat=S.tets.filter(x=>x.cat===c);
+      const allOn=tetsInCat.every(x=>x.on);
+      h+=`<button class="${allOn?"act":""}" onclick="qsel('${c}')">${catLabel(c)}</button>`;
+    });
+    h+=`<button onclick="qsel('all')">${t("all")}</button>`;
+    h+=`<button onclick="qsel('none')">${t("none")}</button>`;
+    h+=`</div></div>`;
+
+    // Tetrachord list
+    h+=`<div class="sec"><h3>${t("tetrachords")}</h3>`;
+    let lastCat="";
+    S.tets.forEach((x,i)=>{
+      if(x.cat!==lastCat){lastCat=x.cat;h+=`<div class="catl">${catLabel(x.cat)}</div>`;}
+      h+=`<div class="tr"><input type="checkbox" ${x.on?"checked":""} onchange="tog(${i},false)"><span class="tn">${x.name}</span><span class="ts">${x.steps.join("-")}</span></div>`;
+    });
+    if(S.custom.length){
+      h+=`<div class="catl">${t("custom")}</div>`;
+      S.custom.forEach((x,i)=>{
+        h+=`<div class="tr"><input type="checkbox" ${x.on?"checked":""} onchange="tog(${i},true)"><span class="tn">${x.name}</span><span class="ts">${x.steps.join("-")}</span><button class="rm" onclick="rem(${i})">×</button></div>`;
+      });
+    }
+    h+=`</div>`;
+
+    // Add custom
+    h+=`<div class="cb"><h4>${t("addCustom")}</h4><div class="rw">
+      <input id="cn" placeholder="${t("namePh")}"><input id="cs" placeholder="${t("stepsPh")}">
+      <button onclick="addC()">${t("add")}</button></div>${S.addErr?`<div class="err">${S.addErr}</div>`:""}</div>`;
+
+    // Instrument
+    h+=`<div class="sec"><h3>${t("instrument")}</h3><div class="ig">`;
+    Object.keys(INSTRUMENTS).forEach(k=>{
+      h+=`<button class="${S.inst===k?"a":""}" onclick="si('${k}')">${INSTRUMENTS[k].label[S.lang]}</button>`;
+    });
+    h+=`</div></div>`;
+
+    // Direction
+    h+=`<div class="sec"><h3>${t("dir")}</h3><div class="db">`;
+    [["up","up"],["down","down"],["updown","updown"],["random","random"]].forEach(([k,v])=>{
+      h+=`<button class="${S.dir===v?"a":""}" onclick="sd('${v}')">${t(k)}</button>`;
+    });
+    h+=`</div></div>`;
+
+    // Tempo
+    h+=`<div class="sec"><h3>${t("tempo")}</h3><div class="tmr"><span>${t("fast")}</span><input type="range" min="0.2" max="0.8" step="0.05" value="${S.tempo}" oninput="stt(this.value)"><span>${t("slow")}</span></div></div>`;
+
+    // Show steps
+    h+=`<label class="sl"><input type="checkbox" ${S.showSteps?"checked":""} onchange="sss(this.checked)">${t("showSteps")}</label>`;
+
+  } else {
+    if(en.length<2){
+      h+=`<div class="empty">${t("enable2")}</div>`;
+    } else {
+      h+=`<div class="ctrls"><button class="bp" style="flex:1" onclick="nq()">${S.q?t("next"):t("start")}</button>`;
+      if(S.q)h+=`<button class="br" onclick="rp()">${t("replay")}</button>`;
+      h+=`</div>`;
+      if(S.q){
+        h+=`<p class="meta">${t("direction")}: <strong>${t(S.q.dir)}</strong>`;
+        if(S.res!==null){const rn=NOTES[S.q.root%12]+Math.floor(S.q.root/12-1);h+=` &nbsp;|&nbsp; ${t("root")}: <strong>${rn}</strong>`;}
+        h+=`</p><div class="grid">`;
+        en.forEach((x,i)=>{
+          const isOk=S.res!==null&&x.name===S.q.tet.name&&x.steps.join()===S.q.tet.steps.join();
+          const isNo=S.res!==null&&S.sel&&x.name===S.sel.name&&x.steps.join()===S.sel.steps.join()&&!isOk;
+          const cls=isOk?"ok":isNo?"no":"";
+          const lk=S.res!==null?"lk":"";
+          h+=`<button class="ab ${cls} ${lk}" onclick="ans(${i})"><div class="n">${x.name}</div>${S.showSteps?`<div class="s">${x.steps.join("-")}</div>`:""}${en.length>6?`<div class="cat">${catLabel(x.cat)}</div>`:""}</button>`;
+        });
+        h+=`</div>`;
+      }
+      if(S.total>0){
+        const pc=pct>=70?"g":pct>=40?"m":"l";
+        h+=`<div class="sts"><span><strong>${S.correct}</strong>/${S.total}</span><span class="pct ${pc}">${pct}%</span><button class="rb" onclick="rst()">${t("reset")}</button></div>`;
+      }
+    }
+  }
+  document.getElementById("app").innerHTML=h;
+  document.getElementById("ft").innerHTML=t("footer");
+}
+
+function sv(v){S.view=v;S.addErr="";render();}
+function tl(){S.lang=S.lang==="en"?"es":"en";document.documentElement.lang=S.lang;render();}
+function tog(i,isC){if(isC)S.custom[i].on=!S.custom[i].on;else S.tets[i].on=!S.tets[i].on;render();}
+function rem(i){S.custom.splice(i,1);render();}
+function sd(d){S.dir=d;render();}
+function stt(v){S.tempo=parseFloat(v);}
+function sss(v){S.showSteps=v;render();}
+function si(k){S.inst=k;render();}
+function rst(){S.correct=0;S.total=0;S.q=null;S.sel=null;S.res=null;render();}
+
+function qsel(c){
+  if(c==="all"){S.tets.forEach(x=>x.on=true);S.custom.forEach(x=>x.on=true);}
+  else if(c==="none"){S.tets.forEach(x=>x.on=false);S.custom.forEach(x=>x.on=false);}
+  else{
+    S.tets.forEach(x=>{if(x.cat===c)x.on=true;else x.on=false;});
+    S.custom.forEach(x=>x.on=false);
+  }
+  render();
+}
+
+function addC(){
+  S.addErr="";
+  const n=(document.getElementById("cn").value||"").trim();
+  const raw=(document.getElementById("cs").value||"").split(/[\s,]+/).map(Number).filter(x=>x>0&&x<6);
+  if(!n||raw.length<2){render();return;}
+  const dup=findDup(raw);
+  if(dup){S.addErr=t("dupErr")+dup;render();return;}
+  S.custom.push({name:n,steps:raw,cat:"custom",on:true});render();
+}
+
+function nq(){
+  const en=enabledTets();if(en.length<2)return;
+  const tet=en[Math.floor(Math.random()*en.length)];
+  const root=48+Math.floor(Math.random()*25);
+  const dir=S.dir==="random"?(Math.random()>.5?"up":"down"):S.dir;
+  S.q={tet,root,dir};S.sel=null;S.res=null;
+  render();playTet(root,tet.steps,dir,S.tempo);
+}
+function rp(){if(!S.q)return;playTet(S.q.root,S.q.tet.steps,S.q.dir,S.tempo);}
+function ans(i){
+  if(S.res!==null)return;
+  const en=enabledTets(),x=en[i];
+  const ok=x.name===S.q.tet.name&&x.steps.join()===S.q.tet.steps.join();
+  S.sel=x;S.res=ok;S.total++;if(ok)S.correct++;render();
+}
+render();
+</script>
+</body>
+</html>
