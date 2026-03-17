@@ -1,330 +1,330 @@
+
+Is there an online platform for ear training where i can set up custom excercieses? For example types of tetrachords up and down. 
+
+Or can you build the app for me? ie 
+Test me on a list of tetrachord types (added in terms of semitone steps)
+Eg. lydian (222), ionian 221, dorian 212, phrygian 122 etc.
+
+2:21 PM
+Let me build this for you! Given your interest in modal jazz harmony, this is a perfect tool to have. Let me create a custom tetrachord ear training app.
+
+Tetrachord Ear Training
+Interactive artifact 
+Here's your tetrachord ear trainer. It uses Web Audio API to synthesize the notes directly in the browser — no external dependencies needed.
+
+What's included out of the box: Lydian (2-2-2), Ionian (2-2-1), Mixolydian (2-1-2), Dorian (2-1-2), Phrygian (1-2-2), Aeolian, Locrian, Harmonic Minor Upper tetrachord, Chromatic, and Whole Tone. You can enable/disable any of them in Setup.
+
+Key features:
+
+Custom tetrachords — add any interval pattern you want (e.g., the Hungarian 2-1-3 or whatever you're exploring)
+Direction control — ascending, descending, up-and-down, or random
+Adjustable tempo — speed up as your ear gets sharper
+Show/hide semitone steps on the answer buttons (hide them when you're ready for the real challenge)
+Score tracking per session
+One thing to note: Dorian, Mixolydian, and Aeolian lower tetrachords share the same 2-1-2 pattern — that's by design since they're genuinely identical as isolated tetrachords. If you want to differentiate modal contexts, I could extend this to include upper tetrachords or full scales. Same goes if you want to explore pentachords or the full George Russell Lydian Chromatic framework. Just say the word.
+
+Name the app Felipe's Tetrachord Ear Trainer. How can i distribute it?
+
+2:26 PM
+Tetrachord Ear Training
+Interactive artifact ∙ Version 2 
+Done — it's now "Felipe's Tetrachord Ear Trainer."
+
+For distribution, you have several good options depending on how far you want to take it:
+
+Quickest path — static HTML file. I can export this as a single self-contained HTML file. You'd upload it to any web host (an S3 bucket would be trivial given your AWS background) and share the URL. Zero dependencies, works on any device with a browser. You could have it live in 10 minutes.
+
+As a page on your own site. If Aplyca's site or a personal domain runs on a CMS you control, you can embed it there. It's pure client-side JS, so it doesn't need a backend.
+
+GitHub Pages. Push the HTML file to a repo, enable GitHub Pages, and you've got a free hosted URL you can share on LinkedIn, CMSWire columns, etc.
+
+PWA (Progressive Web App). With a small wrapper (a manifest file and a simple service worker), it becomes installable on phones and works offline. This would be nice for practice sessions without connectivity.
+
+App stores. Overkill for this, but if you ever wanted to, wrapping it in Capacitor or a WebView gets you into iOS/Android stores.
+
+My recommendation: start with a standalone HTML file on S3 or GitHub Pages. Want me to export it as a single self-contained HTML file ready to deploy?
+
+Yeah
+
+2:27 PM
+Felipe's Tetrachord Ear Trainer - Standalone HTML
+Interactive artifact 
+There you go — a single self-contained HTML file, dark-themed, zero dependencies. To deploy it:
+
+S3 + CloudFront (you know the drill):
+
+Create an S3 bucket, upload this file as index.html
+Enable static website hosting
+Optionally put CloudFront in front for HTTPS and a custom domain
+GitHub Pages (even faster):
+
+Create a repo, drop this as index.html
+Settings → Pages → deploy from main branch
+Live at yourusername.github.io/repo-name
+Either way you'll have a shareable URL in minutes. You could link it from your CMSWire column or a LinkedIn post on modal ear training — it'd be a nice complement to your thought leadership content, just from the music angle instead of tech.
+
+Want me to add anything before you ship it? A PWA manifest for offline use, or maybe an "About" section crediting the modal theory context?
+
+Add a feature to select the key or have random key. This way we can train on a single key.
+
+3:34 PM
+Tetrachord Ear Training
+Interactive artifact ∙ Version 3 
+Tetrachord Ear Training
+Interactive artifact ∙ Version 4 
+Tetrachord Ear Training
+Interactive artifact ∙ Version 5 
+Now let me update the standalone HTML version too:
+
+Felipe's Tetrachord Ear Trainer - Standalone HTML
+Interactive artifact ∙ Version 2 
+Felipe's Tetrachord Ear Trainer - Standalone HTML
+Interactive artifact ∙ Version 3 
+Now I need to add the UI for key selection in the setup view of the HTML version. Since there are many changes needed in the setup rendering, let me rewrite the HTML artifact:
+
+Felipe's Tetrachord Ear Trainer - Standalone HTML
+Interactive artifact ∙ Version 4 
+Both versions are updated. In Setup you'll now see a Root Key section with all 12 chromatic pitches plus "Random." When you pick a specific key, an octave selector (2–5) appears so you can place it in the register you want. During training, the key is shown in the metadata bar when fixed, and revealed after answering when random.
+
+This is nice for focused practice — lock it to, say, D4 and you isolate the tetrachord color differences without the distraction of different starting pitches. Then switch to Random when you're ready to generalize.
+
+How could we have sampled or better quality audio? ie. not synthesized? Any way of adding sound fonts or something like that?
+
+3:36 PM
+Great question. There are a few approaches, ranked from most practical to most ambitious:
+
+SoundFonts via WebAudio — the sweet spot. There's a library called soundfont-player that loads pre-rendered instrument samples from a CDN (Benjamin Gleitzman's hosted set from FluidR3 and MusyngKite soundfonts). It gives you acoustic piano, electric piano, vibraphone, guitar, etc. — all real sampled instruments, loaded on demand. The catch: it's an external dependency, so the app would need to fetch samples on first load (a few hundred KB per instrument). But it works entirely client-side.
+
+Tone.js Sampler. Tone.js (which is available in Claude artifacts) has a Sampler class that can load individual audio samples mapped to pitches and interpolate between them. You could point it at any hosted sample set. This is essentially a DIY soundfont approach with more control.
+
+WebAudio FM synthesis — better synth, no samples. Instead of the simple triangle oscillator we're using now, I could build an FM synth (modulator + carrier) that produces much more convincing piano-like or electric piano tones. No external dependencies, stays fully self-contained, and sounds significantly better than what we have. Think DX7-style Rhodes.
+
+Pre-rendered audio sprites. Record or source
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Felipe's Tetrachord Ear Trainer</title>
-<meta name="description" content="A customizable ear training tool for recognizing tetrachord types by ear. Based on Ron Miller's Modal Jazz Composition & Harmony.">
+<meta name="description" content="A customizable ear training tool for recognizing tetrachord types by ear. Built for musicians exploring modal harmony.">
+<meta property="og:title" content="Felipe's Tetrachord Ear Trainer">
+<meta property="og:description" content="Train your ear to recognize Lydian, Dorian, Phrygian, and custom tetrachords.">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f1117;--bg2:#1a1d2e;--bg3:#242842;--accent:#4f6df5;--accent-dim:rgba(79,109,245,0.12);--green:#2ecc71;--green-dim:rgba(46,204,113,0.15);--red:#e74c3c;--red-dim:rgba(231,76,60,0.1);--text:#e8e8f0;--text2:#8888a8;--border:#2a2d44;--orange:#f39c12}
-body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
-#app{max-width:640px;width:100%;flex:1}
-.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
-.hdr h1{font-size:19px;font-weight:700}
-.hdr-r{display:flex;gap:6px;align-items:center}
-.tabs{display:flex;gap:3px}
-.tab{padding:6px 12px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text2);transition:all .15s}
-.tab.a{background:var(--accent);color:#fff}
-.lng{padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text2);transition:all .15s}
-.lng:hover{border-color:var(--accent)}
-.bp{width:100%;padding:13px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s}
-.bp:hover{opacity:.9}
-.br{padding:13px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:15px;cursor:pointer}
-.ctrls{display:flex;gap:8px;margin-bottom:18px}
-.meta{font-size:13px;color:var(--text2);margin-bottom:12px}
-.meta strong{color:var(--text)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ab{padding:13px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;text-align:center;transition:all .15s;color:var(--text)}
-.ab:hover:not(.lk){border-color:var(--accent);background:var(--accent-dim)}
-.ab.ok{border:2px solid var(--green);background:var(--green-dim)}
-.ab.no{border:2px solid var(--red);background:var(--red-dim)}
-.ab .n{font-size:14px;font-weight:600}
-.ab .s{font-size:11px;color:var(--text2);margin-top:3px;font-family:monospace}
-.ab .cat{font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
-.sts{display:flex;justify-content:center;gap:24px;padding:12px 0;border-top:1px solid var(--border);margin-top:10px;font-size:13px}
-.pct{font-weight:700}
-.g{color:var(--green)}.m{color:var(--orange)}.l{color:var(--red)}
-.rb{background:none;border:none;color:var(--text2);cursor:pointer;text-decoration:underline;font-size:12px}
-h3{font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text)}
-.sec{margin-bottom:18px}
-.tr{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
-.tr input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
-.tr .tn{flex:1;font-size:13px;font-weight:500}
-.tr .ts{font-size:11px;color:var(--text2);font-family:monospace}
-.tr .rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 4px}
-.cb{background:var(--bg2);border-radius:10px;padding:12px;margin:14px 0}
-.cb h4{font-size:13px;font-weight:600;margin-bottom:8px}
-.cb .rw{display:flex;gap:8px;flex-wrap:wrap}
-.cb input{flex:1;min-width:100px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px}
-.cb input::placeholder{color:var(--text2)}
-.cb button{padding:7px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
-.cb .err{color:var(--red);font-size:11px;margin-top:6px}
-.db{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.db button{padding:6px 13px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
-.db button.a{border:2px solid var(--accent);background:var(--accent-dim)}
-.tmr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.tmr span{font-size:12px;color:var(--text2)}
-.tmr input[type=range]{flex:1;accent-color:var(--accent)}
-.sl{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:8px}
-.sl input{accent-color:var(--accent)}
-.empty{text-align:center;padding:36px;color:var(--text2);font-size:14px}
-.catl{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:10px 0 4px;border-bottom:1px solid var(--border);margin-bottom:2px}
-.qg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.qg button{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.qg button:hover{border-color:var(--accent)}
-.qg button.act{background:var(--accent);color:#fff;border-color:var(--accent)}
-.ig{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.ig button{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
-.ig button.a{border:2px solid var(--accent);background:var(--accent-dim)}
-footer{max-width:640px;width:100%;text-align:center;padding:20px 16px 8px;font-size:11px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);margin-top:20px}
-footer a{color:var(--text2);text-decoration:none}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d2e;
+    --bg3: #242842;
+    --accent: #4f6df5;
+    --accent-dim: rgba(79,109,245,0.12);
+    --green: #2ecc71;
+    --green-dim: rgba(46,204,113,0.12);
+    --red: #e74c3c;
+    --red-dim: rgba(231,76,60,0.08);
+    --text: #e8e8f0;
+    --text2: #8888a8;
+    --border: #2a2d44;
+  }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
+  #app { max-width: 640px; width: 100%; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-size: 20px; font-weight: 700; }
+  .tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 14px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--bg2); color: var(--text2); transition: all 0.15s; }
+  .tab.active { background: var(--accent); color: #fff; }
+  .btn-primary { width: 100%; padding: 14px 20px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-replay { padding: 14px 20px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 15px; cursor: pointer; }
+  .controls { display: flex; gap: 8px; margin-bottom: 20px; }
+  .meta { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+  .meta strong { color: var(--text); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .answer-btn { padding: 14px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg2); cursor: pointer; text-align: center; transition: all 0.15s; color: var(--text); }
+  .answer-btn:hover:not(.locked) { border-color: var(--accent); background: var(--accent-dim); }
+  .answer-btn.correct { border: 2px solid var(--green); background: var(--green-dim); }
+  .answer-btn.wrong { border: 2px solid var(--red); background: var(--red-dim); }
+  .answer-btn .name { font-size: 14px; font-weight: 600; }
+  .answer-btn .steps { font-size: 11px; color: var(--text2); margin-top: 3px; font-family: monospace; }
+  .stats { display: flex; justify-content: center; gap: 24px; padding: 14px 0; border-top: 1px solid var(--border); margin-top: 12px; font-size: 13px; }
+  .stats .pct { font-weight: 700; }
+  .stats .pct.good { color: var(--green); }
+  .stats .pct.mid { color: #f39c12; }
+  .stats .pct.low { color: var(--red); }
+  .reset-btn { background: none; border: none; color: var(--text2); cursor: pointer; text-decoration: underline; font-size: 12px; }
+  h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .tet-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tet-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
+  .tet-row .tet-name { flex: 1; font-size: 14px; font-weight: 500; }
+  .tet-row .tet-steps { font-size: 12px; color: var(--text2); font-family: monospace; }
+  .tet-row .remove-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 0 4px; }
+  .custom-box { background: var(--bg2); border-radius: 10px; padding: 14px; margin: 16px 0; }
+  .custom-box h4 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .custom-box .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .custom-box input { flex: 1; min-width: 110px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; }
+  .custom-box input::placeholder { color: var(--text2); }
+  .custom-box button { padding: 8px 16px; border-radius: 6px; border: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .pill-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .pill { padding: 7px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; min-width: 36; text-align: center; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.15s; }
+  .pill.active { border: 2px solid var(--accent); background: var(--accent-dim); }
+  .tempo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .tempo-row span { font-size: 12px; color: var(--text2); }
+  .tempo-row input[type=range] { flex: 1; accent-color: var(--accent); }
+  .show-steps-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .show-steps-label input { accent-color: var(--accent); }
+  .empty-state { text-align: center; padding: 40px; color: var(--text2); font-size: 15px; }
+  .section { margin-bottom: 20px; }
+  .oct-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .oct-row span { font-size: 13px; color: var(--text2); }
 </style>
 </head>
 <body>
 <div id="app"></div>
-<footer>
-  <span id="ft"></span>
-</footer>
 <script>
-const TETS=[
-  {name:"Lydian",steps:[2,2,2],cat:"basic"},
-  {name:"Ionian",steps:[2,2,1],cat:"basic"},
-  {name:"Dorian",steps:[2,1,2],cat:"basic"},
-  {name:"Phrygian",steps:[1,2,2],cat:"basic"},
-  {name:"Hungarian Major",steps:[3,1,2],cat:"advanced"},
-  {name:"Hungarian Minor",steps:[2,1,3],cat:"advanced"},
-  {name:"Harmonic",steps:[1,3,1],cat:"advanced"},
-  {name:"Spanish",steps:[1,2,1],cat:"advanced"},
-  {name:"Dorian ♭4",steps:[2,1,1],cat:"super"},
-  {name:"Blues 31",steps:[3,1,1],cat:"super"},
-  {name:"Blues 32",steps:[3,2,1],cat:"super"},
-  {name:"Hungarian Pentatonic",steps:[2,3,1],cat:"super"},
-  {name:"Hungarian Phrygian",steps:[1,2,3],cat:"super"},
-  {name:"Hungarian Spanish",steps:[1,3,2],cat:"super"},
-  {name:"Firebird I",steps:[1,1,4],cat:"super"},
-  {name:"Firebird II",steps:[4,1,1],cat:"super"},
+const NOTE_NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const DEFAULT=[
+  {name:"Lydian",steps:[2,2,2],on:true},
+  {name:"Ionian (Major)",steps:[2,2,1],on:true},
+  {name:"Mixolydian",steps:[2,1,2],on:true},
+  {name:"Dorian",steps:[2,1,2],on:true},
+  {name:"Aeolian (Minor)",steps:[2,1,2],on:false},
+  {name:"Phrygian",steps:[1,2,2],on:true},
+  {name:"Locrian",steps:[1,2,1],on:false},
+  {name:"Harm. Minor Upper",steps:[1,3,1],on:false},
+  {name:"Chromatic",steps:[1,1,1],on:false},
+  {name:"Whole Tone",steps:[2,2,2],on:false},
 ];
-const CATS=["basic","advanced","super"];
-const NOTES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const INSTRUMENTS={
-  piano:{label:{en:"Piano",es:"Piano"},type:"triangle",filterFreq:2200,attack:0.01,release:0.1},
-  marimba:{label:{en:"Marimba",es:"Marimba"},type:"sine",filterFreq:1800,attack:0.005,release:0.15},
-  organ:{label:{en:"Organ",es:"Órgano"},type:"square",filterFreq:1200,attack:0.02,release:0.05},
-  flute:{label:{en:"Flute",es:"Flauta"},type:"sine",filterFreq:4000,attack:0.03,release:0.12},
-};
-const T={
-  en:{
-    title:"Felipe's Tetrachord Ear Trainer",
-    train:"Train",setup:"Setup",start:"Start",next:"Next",replay:"🔁 Replay",
-    dir:"Direction",up:"Up",down:"Down",updown:"Up & Down",random:"Random",
-    tempo:"Tempo",fast:"Fast",slow:"Slow",
-    showSteps:"Show semitone steps on buttons",
-    tetrachords:"Tetrachords",addCustom:"Add Custom Tetrachord",
-    namePh:"Name",stepsPh:"Steps (e.g. 2 1 3)",add:"Add",
-    basic:"Basic",advanced:"Advanced",super:"Super Advanced",
-    enable2:"Enable at least 2 tetrachords in Setup to start training.",
-    direction:"Direction",root:"Root",reset:"Reset",
-    quickSel:"Quick Select",all:"All",none:"None",
-    instrument:"Instrument",
-    dupErr:"That step combination already exists as: ",
-    footer:'Created by Felipe Jaramillo Fonnegra. Inspired by Ron Miller\'s <em>Modal Jazz Composition & Harmony</em>, Appendix 2.',
-    custom:"Custom"
-  },
-  es:{
-    title:"Entrenamiento Auditivo de Tetracordios",
-    train:"Entrenar",setup:"Configuración",start:"Iniciar",next:"Siguiente",replay:"🔁 Repetir",
-    dir:"Dirección",up:"Ascendente",down:"Descendente",updown:"Asc. y Desc.",random:"Aleatorio",
-    tempo:"Tempo",fast:"Rápido",slow:"Lento",
-    showSteps:"Mostrar semitonos en los botones",
-    tetrachords:"Tetracordios",addCustom:"Agregar tetracordio personalizado",
-    namePh:"Nombre",stepsPh:"Pasos (ej. 2 1 3)",add:"Agregar",
-    basic:"Básico",advanced:"Avanzado",super:"Súper Avanzado",
-    enable2:"Habilita al menos 2 tetracordios en Configuración para empezar.",
-    direction:"Dirección",root:"Raíz",reset:"Reiniciar",
-    quickSel:"Selección rápida",all:"Todos",none:"Ninguno",
-    instrument:"Instrumento",
-    dupErr:"Esa combinación de pasos ya existe como: ",
-    footer:'Creado por Felipe Jaramillo Fonnegra. Inspirado en <em>Modal Jazz Composition & Harmony</em> de Ron Miller, Apéndice 2.',
-    custom:"Personal"
-  }
-};
 
-let S={
-  tets:TETS.map(t=>({...t,on:t.cat==="basic"})),
-  custom:[],
-  dir:"up",tempo:0.45,showSteps:true,view:"train",
-  q:null,sel:null,res:null,correct:0,total:0,
-  lang:"en",inst:"piano",addErr:""
+let state={
+  tets:JSON.parse(JSON.stringify(DEFAULT)),
+  dir:"up",tempo:0.45,showSteps:true,
+  rootKey:"random",rootOct:4,
+  view:"train",q:null,sel:null,res:null,
+  correct:0,total:0
 };
 
 // Audio
 let actx=null;
 function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();return actx;}
-function playNote(midi,t,dur,vol=0.32){
-  const c=getCtx(),ins=INSTRUMENTS[S.inst];
-  const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
-  o.type=ins.type;o.frequency.value=440*Math.pow(2,(midi-69)/12);
-  f.type="lowpass";f.frequency.value=ins.filterFreq;
-  g.gain.setValueAtTime(0,t);
-  g.gain.linearRampToValueAtTime(vol,t+ins.attack);
-  g.gain.setValueAtTime(vol,t+dur-ins.release);
-  g.gain.linearRampToValueAtTime(0,t+dur);
-  o.connect(f);f.connect(g);g.connect(c.destination);
-  o.start(t);o.stop(t+dur);
-  if(ins.type==="sine"&&S.inst==="flute"){
-    const o2=c.createOscillator(),g2=c.createGain();
-    o2.type="sine";o2.frequency.value=440*Math.pow(2,(midi-69)/12)*2;
-    g2.gain.setValueAtTime(0,t);g2.gain.linearRampToValueAtTime(vol*0.15,t+ins.attack);
-    g2.gain.setValueAtTime(vol*0.15,t+dur-ins.release);g2.gain.linearRampToValueAtTime(0,t+dur);
-    o2.connect(f);g2.connect(c.destination);o2.connect(g2);o2.start(t);o2.stop(t+dur);
-  }
-}
-function playTet(root,steps,dir,tempo){
-  const c=getCtx(),now=c.currentTime+0.05;
-  let ns=[root];let cur=root;
-  for(const s of steps){cur+=s;ns.push(cur);}
-  if(dir==="down")ns=ns.reverse();
-  if(dir==="updown")ns=[...ns,...ns.slice(0,-1).reverse()];
-  ns.forEach((n,i)=>playNote(n,now+i*tempo,tempo+0.05));
-}
-
-function t(k){return T[S.lang][k]||k;}
-function catLabel(c){return c==="basic"?t("basic"):c==="advanced"?t("advanced"):c==="super"?t("super"):t("custom");}
-function allTets(){return [...S.tets,...S.custom];}
-function enabledTets(){return allTets().filter(x=>x.on);}
-
-function findDup(steps){
-  const key=steps.join(",");
-  const all=allTets();
-  for(const t of all){if(t.steps.join(",")===key)return t.name;}
-  return null;
-}
+function playNote(midi,t,dur=0.5,vol=0.35){const c=getCtx(),o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type="triangle";o.frequency.value=440*Math.pow(2,(midi-69)/12);f.type="lowpass";f.frequency.value=2000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.02);g.gain.setValueAtTime(vol,t+dur-0.08);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);}
+function playTet(root,steps,dir,tempo){const c=getCtx(),now=c.currentTime+0.05;let ns=[root];let cur=root;for(const s of steps){cur+=s;ns.push(cur);}if(dir==="down")ns=ns.reverse();if(dir==="updown")ns=[...ns,...ns.slice(0,-1).reverse()];ns.forEach((n,i)=>playNote(n,now+i*tempo,tempo+0.05));}
 
 function render(){
-  const en=enabledTets(),pct=S.total>0?Math.round(S.correct/S.total*100):0;
-  let h=`<div class="hdr"><h1>${t("title")}</h1><div class="hdr-r"><div class="tabs">
-    <button class="tab ${S.view==="train"?"a":""}" onclick="sv('train')">${t("train")}</button>
-    <button class="tab ${S.view==="setup"?"a":""}" onclick="sv('setup')">${t("setup")}</button></div>
-    <button class="lng" onclick="tl()">${S.lang==="en"?"ES":"EN"}</button></div></div>`;
+  const S=state,en=S.tets.filter(t=>t.on),pct=S.total>0?Math.round(S.correct/S.total*100):0;
+  let h=`<div class="header"><h1>Felipe's Tetrachord Ear Trainer</h1><div class="tabs">
+    <button class="tab ${S.view==="train"?"active":""}" onclick="sv('train')">Train</button>
+    <button class="tab ${S.view==="setup"?"active":""}" onclick="sv('setup')">Setup</button></div></div>`;
 
   if(S.view==="setup"){
-    // Quick select
-    h+=`<div class="sec"><h3>${t("quickSel")}</h3><div class="qg">`;
-    CATS.forEach(c=>{
-      const tetsInCat=S.tets.filter(x=>x.cat===c);
-      const allOn=tetsInCat.every(x=>x.on);
-      h+=`<button class="${allOn?"act":""}" onclick="qsel('${c}')">${catLabel(c)}</button>`;
+    h+=`<div class="section"><h3>Tetrachords</h3>`;
+    S.tets.forEach((t,i)=>{
+      h+=`<div class="tet-row"><input type="checkbox" ${t.on?"checked":""} onchange="tog(${i})"><span class="tet-name">${t.name}</span><span class="tet-steps">${t.steps.join("-")}</span>${i>=DEFAULT.length?`<button class="remove-btn" onclick="rem(${i})">×</button>`:""}</div>`;
     });
-    h+=`<button onclick="qsel('all')">${t("all")}</button>`;
-    h+=`<button onclick="qsel('none')">${t("none")}</button>`;
-    h+=`</div></div>`;
+    h+=`</div><div class="custom-box"><h4>Add Custom Tetrachord</h4><div class="row">
+      <input id="cn" placeholder="Name"><input id="cs" placeholder="Steps (e.g. 2 1 2)">
+      <button onclick="addC()">Add</button></div></div>`;
 
-    // Tetrachord list
-    h+=`<div class="sec"><h3>${t("tetrachords")}</h3>`;
-    let lastCat="";
-    S.tets.forEach((x,i)=>{
-      if(x.cat!==lastCat){lastCat=x.cat;h+=`<div class="catl">${catLabel(x.cat)}</div>`;}
-      h+=`<div class="tr"><input type="checkbox" ${x.on?"checked":""} onchange="tog(${i},false)"><span class="tn">${x.name}</span><span class="ts">${x.steps.join("-")}</span></div>`;
+    // Root Key
+    h+=`<div class="section"><h3>Root Key</h3><div class="pill-btns">`;
+    h+=`<button class="pill ${S.rootKey==="random"?"active":""}" onclick="srk('random')">Random</button>`;
+    NOTE_NAMES.forEach(n=>{
+      h+=`<button class="pill ${S.rootKey===n?"active":""}" onclick="srk('${n}')">${n}</button>`;
     });
-    if(S.custom.length){
-      h+=`<div class="catl">${t("custom")}</div>`;
-      S.custom.forEach((x,i)=>{
-        h+=`<div class="tr"><input type="checkbox" ${x.on?"checked":""} onchange="tog(${i},true)"><span class="tn">${x.name}</span><span class="ts">${x.steps.join("-")}</span><button class="rm" onclick="rem(${i})">×</button></div>`;
+    h+=`</div>`;
+    if(S.rootKey!=="random"){
+      h+=`<div class="oct-row"><span>Octave:</span>`;
+      [2,3,4,5].forEach(o=>{
+        h+=`<button class="pill ${S.rootOct===o?"active":""}" onclick="sro(${o})" style="min-width:32px">${o}</button>`;
       });
+      h+=`</div>`;
     }
     h+=`</div>`;
 
-    // Add custom
-    h+=`<div class="cb"><h4>${t("addCustom")}</h4><div class="rw">
-      <input id="cn" placeholder="${t("namePh")}"><input id="cs" placeholder="${t("stepsPh")}">
-      <button onclick="addC()">${t("add")}</button></div>${S.addErr?`<div class="err">${S.addErr}</div>`:""}</div>`;
-
-    // Instrument
-    h+=`<div class="sec"><h3>${t("instrument")}</h3><div class="ig">`;
-    Object.keys(INSTRUMENTS).forEach(k=>{
-      h+=`<button class="${S.inst===k?"a":""}" onclick="si('${k}')">${INSTRUMENTS[k].label[S.lang]}</button>`;
-    });
-    h+=`</div></div>`;
-
     // Direction
-    h+=`<div class="sec"><h3>${t("dir")}</h3><div class="db">`;
-    [["up","up"],["down","down"],["updown","updown"],["random","random"]].forEach(([k,v])=>{
-      h+=`<button class="${S.dir===v?"a":""}" onclick="sd('${v}')">${t(k)}</button>`;
+    h+=`<div class="section"><h3>Direction</h3><div class="pill-btns">`;
+    ["up","down","updown","random"].forEach(d=>{
+      const label=d==="updown"?"Up & Down":d[0].toUpperCase()+d.slice(1);
+      h+=`<button class="pill ${S.dir===d?"active":""}" onclick="sd('${d}')">${label}</button>`;
     });
     h+=`</div></div>`;
 
-    // Tempo
-    h+=`<div class="sec"><h3>${t("tempo")}</h3><div class="tmr"><span>${t("fast")}</span><input type="range" min="0.2" max="0.8" step="0.05" value="${S.tempo}" oninput="stt(this.value)"><span>${t("slow")}</span></div></div>`;
-
-    // Show steps
-    h+=`<label class="sl"><input type="checkbox" ${S.showSteps?"checked":""} onchange="sss(this.checked)">${t("showSteps")}</label>`;
-
+    h+=`<div class="section"><h3>Tempo</h3><div class="tempo-row"><span>Fast</span><input type="range" min="0.2" max="0.8" step="0.05" value="${S.tempo}" oninput="st(this.value)"><span>Slow</span></div></div>`;
+    h+=`<label class="show-steps-label"><input type="checkbox" ${S.showSteps?"checked":""} onchange="ss(this.checked)">Show semitone steps on answer buttons</label>`;
   } else {
     if(en.length<2){
-      h+=`<div class="empty">${t("enable2")}</div>`;
+      h+=`<div class="empty-state">Enable at least 2 tetrachords in Setup to start training.</div>`;
     } else {
-      h+=`<div class="ctrls"><button class="bp" style="flex:1" onclick="nq()">${S.q?t("next"):t("start")}</button>`;
-      if(S.q)h+=`<button class="br" onclick="rp()">${t("replay")}</button>`;
+      h+=`<div class="controls"><button class="btn-primary" onclick="nq()" style="flex:1">${S.q?"Next":"Start"}</button>`;
+      if(S.q)h+=`<button class="btn-replay" onclick="rp()">🔁 Replay</button>`;
       h+=`</div>`;
       if(S.q){
-        h+=`<p class="meta">${t("direction")}: <strong>${t(S.q.dir)}</strong>`;
-        if(S.res!==null){const rn=NOTES[S.q.root%12]+Math.floor(S.q.root/12-1);h+=` &nbsp;|&nbsp; ${t("root")}: <strong>${rn}</strong>`;}
+        h+=`<p class="meta">`;
+        if(S.rootKey!=="random") h+=`Key: <strong>${S.rootKey}${S.rootOct}</strong> &nbsp;|&nbsp; `;
+        h+=`Direction: <strong>${S.q.dir}</strong>`;
+        if(S.res!==null && S.rootKey==="random"){const rn=NOTE_NAMES[S.q.root%12]+Math.floor(S.q.root/12-1);h+=` &nbsp;|&nbsp; Root: <strong>${rn}</strong>`;}
         h+=`</p><div class="grid">`;
-        en.forEach((x,i)=>{
-          const isOk=S.res!==null&&x.name===S.q.tet.name&&x.steps.join()===S.q.tet.steps.join();
-          const isNo=S.res!==null&&S.sel&&x.name===S.sel.name&&x.steps.join()===S.sel.steps.join()&&!isOk;
-          const cls=isOk?"ok":isNo?"no":"";
-          const lk=S.res!==null?"lk":"";
-          h+=`<button class="ab ${cls} ${lk}" onclick="ans(${i})"><div class="n">${x.name}</div>${S.showSteps?`<div class="s">${x.steps.join("-")}</div>`:""}${en.length>6?`<div class="cat">${catLabel(x.cat)}</div>`:""}</button>`;
+        en.forEach((t,i)=>{
+          const isCorr=S.res!==null&&t.name===S.q.tet.name&&t.steps.join()===S.q.tet.steps.join();
+          const isWrong=S.res!==null&&S.sel&&t.name===S.sel.name&&t.steps.join()===S.sel.steps.join()&&!isCorr;
+          const cls=isCorr?"correct":isWrong?"wrong":"";
+          const lock=S.res!==null?"locked":"";
+          h+=`<button class="answer-btn ${cls} ${lock}" onclick="ans(${i})"><div class="name">${t.name}</div>${S.showSteps?`<div class="steps">${t.steps.join("-")}</div>`:""}</button>`;
         });
         h+=`</div>`;
       }
       if(S.total>0){
-        const pc=pct>=70?"g":pct>=40?"m":"l";
-        h+=`<div class="sts"><span><strong>${S.correct}</strong>/${S.total}</span><span class="pct ${pc}">${pct}%</span><button class="rb" onclick="rst()">${t("reset")}</button></div>`;
+        const pc=pct>=70?"good":pct>=40?"mid":"low";
+        h+=`<div class="stats"><span><strong>${S.correct}</strong>/${S.total}</span><span class="pct ${pc}">${pct}%</span><button class="reset-btn" onclick="rst()">Reset</button></div>`;
       }
     }
   }
   document.getElementById("app").innerHTML=h;
-  document.getElementById("ft").innerHTML=t("footer");
 }
 
-function sv(v){S.view=v;S.addErr="";render();}
-function tl(){S.lang=S.lang==="en"?"es":"en";document.documentElement.lang=S.lang;render();}
-function tog(i,isC){if(isC)S.custom[i].on=!S.custom[i].on;else S.tets[i].on=!S.tets[i].on;render();}
-function rem(i){S.custom.splice(i,1);render();}
-function sd(d){S.dir=d;render();}
-function stt(v){S.tempo=parseFloat(v);}
-function sss(v){S.showSteps=v;render();}
-function si(k){S.inst=k;render();}
-function rst(){S.correct=0;S.total=0;S.q=null;S.sel=null;S.res=null;render();}
-
-function qsel(c){
-  if(c==="all"){S.tets.forEach(x=>x.on=true);S.custom.forEach(x=>x.on=true);}
-  else if(c==="none"){S.tets.forEach(x=>x.on=false);S.custom.forEach(x=>x.on=false);}
-  else{
-    S.tets.forEach(x=>{if(x.cat===c)x.on=true;else x.on=false;});
-    S.custom.forEach(x=>x.on=false);
-  }
-  render();
-}
+function sv(v){state.view=v;render();}
+function tog(i){state.tets[i].on=!state.tets[i].on;render();}
+function rem(i){state.tets.splice(i,1);render();}
+function sd(d){state.dir=d;render();}
+function st(v){state.tempo=parseFloat(v);}
+function ss(v){state.showSteps=v;render();}
+function srk(k){state.rootKey=k;render();}
+function sro(o){state.rootOct=o;render();}
+function rst(){state.correct=0;state.total=0;state.q=null;state.sel=null;state.res=null;render();}
 
 function addC(){
-  S.addErr="";
-  const n=(document.getElementById("cn").value||"").trim();
-  const raw=(document.getElementById("cs").value||"").split(/[\s,]+/).map(Number).filter(x=>x>0&&x<6);
-  if(!n||raw.length<2){render();return;}
-  const dup=findDup(raw);
-  if(dup){S.addErr=t("dupErr")+dup;render();return;}
-  S.custom.push({name:n,steps:raw,cat:"custom",on:true});render();
+  const n=document.getElementById("cn").value.trim();
+  const s=document.getElementById("cs").value.split(/[\s,]+/).map(Number).filter(x=>x>0&&x<5);
+  if(!n||s.length<2)return;
+  state.tets.push({name:n,steps:s,on:true});render();
 }
 
 function nq(){
-  const en=enabledTets();if(en.length<2)return;
+  const en=state.tets.filter(t=>t.on);
+  if(en.length<2)return;
   const tet=en[Math.floor(Math.random()*en.length)];
-  const root=48+Math.floor(Math.random()*25);
-  const dir=S.dir==="random"?(Math.random()>.5?"up":"down"):S.dir;
-  S.q={tet,root,dir};S.sel=null;S.res=null;
-  render();playTet(root,tet.steps,dir,S.tempo);
+  let root;
+  if(state.rootKey==="random"){root=48+Math.floor(Math.random()*25);}
+  else{const ki=NOTE_NAMES.indexOf(state.rootKey);root=(state.rootOct+1)*12+ki;}
+  const dir=state.dir==="random"?(Math.random()>0.5?"up":"down"):state.dir;
+  state.q={tet,root,dir};state.sel=null;state.res=null;
+  render();playTet(root,tet.steps,dir,state.tempo);
 }
-function rp(){if(!S.q)return;playTet(S.q.root,S.q.tet.steps,S.q.dir,S.tempo);}
+
+function rp(){if(!state.q)return;playTet(state.q.root,state.q.tet.steps,state.q.dir,state.tempo);}
+
 function ans(i){
-  if(S.res!==null)return;
-  const en=enabledTets(),x=en[i];
-  const ok=x.name===S.q.tet.name&&x.steps.join()===S.q.tet.steps.join();
-  S.sel=x;S.res=ok;S.total++;if(ok)S.correct++;render();
+  if(state.res!==null)return;
+  const en=state.tets.filter(t=>t.on),t=en[i];
+  const correct=t.name===state.q.tet.name&&t.steps.join()===state.q.tet.steps.join();
+  state.sel=t;state.res=correct;state.total++;if(correct)state.correct++;
+  render();
 }
+
 render();
 </script>
 </body>
