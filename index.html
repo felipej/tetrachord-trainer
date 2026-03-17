@@ -4,219 +4,225 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Felipe's Tetrachord Ear Trainer</title>
-<meta name="description" content="A customizable ear training tool for recognizing tetrachord types by ear. Built for musicians exploring modal harmony.">
+<meta name="description" content="A customizable ear training tool for recognizing tetrachord types. Inspired by Ron Miller's Modal Jazz Composition & Harmony.">
 <meta property="og:title" content="Felipe's Tetrachord Ear Trainer">
-<meta property="og:description" content="Train your ear to recognize Lydian, Dorian, Phrygian, and custom tetrachords.">
+<meta property="og:description" content="Train your ear to recognize Lydian, Dorian, Phrygian, Hungarian, and custom tetrachords.">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0f1117;
-    --bg2: #1a1d2e;
-    --bg3: #242842;
-    --accent: #4f6df5;
-    --accent-dim: rgba(79,109,245,0.12);
-    --green: #2ecc71;
-    --green-dim: rgba(46,204,113,0.12);
-    --red: #e74c3c;
-    --red-dim: rgba(231,76,60,0.08);
-    --text: #e8e8f0;
-    --text2: #8888a8;
-    --border: #2a2d44;
-  }
-  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 16px; }
-  #app { max-width: 640px; width: 100%; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .header h1 { font-size: 20px; font-weight: 700; }
-  .tabs { display: flex; gap: 4px; }
-  .tab { padding: 6px 14px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: var(--bg2); color: var(--text2); transition: all 0.15s; }
-  .tab.active { background: var(--accent); color: #fff; }
-  .btn-primary { width: 100%; padding: 14px 20px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-replay { padding: 14px 20px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--text); font-size: 15px; cursor: pointer; }
-  .controls { display: flex; gap: 8px; margin-bottom: 20px; }
-  .meta { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
-  .meta strong { color: var(--text); }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .answer-btn { padding: 14px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg2); cursor: pointer; text-align: center; transition: all 0.15s; color: var(--text); }
-  .answer-btn:hover:not(.locked) { border-color: var(--accent); background: var(--accent-dim); }
-  .answer-btn.correct { border: 2px solid var(--green); background: var(--green-dim); }
-  .answer-btn.wrong { border: 2px solid var(--red); background: var(--red-dim); }
-  .answer-btn .name { font-size: 14px; font-weight: 600; }
-  .answer-btn .steps { font-size: 11px; color: var(--text2); margin-top: 3px; font-family: monospace; }
-  .stats { display: flex; justify-content: center; gap: 24px; padding: 14px 0; border-top: 1px solid var(--border); margin-top: 12px; font-size: 13px; }
-  .stats .pct { font-weight: 700; }
-  .stats .pct.good { color: var(--green); }
-  .stats .pct.mid { color: #f39c12; }
-  .stats .pct.low { color: var(--red); }
-  .reset-btn { background: none; border: none; color: var(--text2); cursor: pointer; text-decoration: underline; font-size: 12px; }
-  h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
-  .tet-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .tet-row input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
-  .tet-row .tet-name { flex: 1; font-size: 14px; font-weight: 500; }
-  .tet-row .tet-steps { font-size: 12px; color: var(--text2); font-family: monospace; }
-  .tet-row .remove-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; padding: 0 4px; }
-  .custom-box { background: var(--bg2); border-radius: 10px; padding: 14px; margin: 16px 0; }
-  .custom-box h4 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
-  .custom-box .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .custom-box input { flex: 1; min-width: 110px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; }
-  .custom-box input::placeholder { color: var(--text2); }
-  .custom-box button { padding: 8px 16px; border-radius: 6px; border: none; background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .pill-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-  .pill { padding: 7px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; min-width: 36; text-align: center; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.15s; }
-  .pill.active { border: 2px solid var(--accent); background: var(--accent-dim); }
-  .tempo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .tempo-row span { font-size: 12px; color: var(--text2); }
-  .tempo-row input[type=range] { flex: 1; accent-color: var(--accent); }
-  .show-steps-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
-  .show-steps-label input { accent-color: var(--accent); }
-  .empty-state { text-align: center; padding: 40px; color: var(--text2); font-size: 15px; }
-  .section { margin-bottom: 20px; }
-  .oct-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
-  .oct-row span { font-size: 13px; color: var(--text2); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f1117;--bg2:#1a1d2e;--bg3:rgba(255,255,255,0.04);--acc:#4f6df5;--acc-d:rgba(79,109,245,0.12);--grn:#2ecc71;--grn-d:rgba(46,204,113,0.12);--red:#e74c3c;--red-d:rgba(231,76,60,0.08);--txt:#e8e8f0;--txt2:#8888a8;--brd:rgba(255,255,255,0.08)}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;justify-content:center;padding:16px 16px 80px}
+#app{max-width:640px;width:100%}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:8px;flex-wrap:wrap}
+.hdr h1{font-size:20px;font-weight:700;flex:1;min-width:200px}
+.lang-sw,.tabs{display:flex;gap:4px}
+.lang-btn,.tab{padding:4px 8px;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.06);color:var(--txt);transition:all .12s}
+.tab{padding:6px 14px;font-size:13px;font-weight:600;border-radius:6px}
+.lang-btn.a,.tab.a{background:var(--acc);color:#fff}
+.sec-t{font-size:14px;font-weight:700;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.5px;opacity:.7}
+.grp-t{font-size:12px;font-weight:700;margin:14px 0 4px;text-transform:uppercase;letter-spacing:.8px;opacity:.45}
+.row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--brd)}
+.row input[type=checkbox]{accent-color:var(--acc);width:16px;height:16px}
+.row .nm{flex:1;font-size:14px;font-weight:500}
+.row .st{font-size:12px;opacity:.5;font-family:monospace}
+.row .rm{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.pill{padding:7px 12px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--brd);background:transparent;color:var(--txt);transition:all .12s;text-align:center}
+.pill.a{border:2px solid var(--acc);background:var(--acc-d);color:var(--acc)}
+.pill.sm{min-width:34px;padding:7px 10px}
+.cust{background:var(--bg3);border-radius:10px;padding:12px;margin-top:14px}
+.cust h4{font-size:13px;font-weight:600;margin-bottom:8px}
+.cust .fr{display:flex;gap:8px;flex-wrap:wrap}
+.cust input{flex:1;min-width:110px;padding:7px 10px;border-radius:6px;border:1px solid var(--brd);background:rgba(255,255,255,0.06);color:var(--txt);font-size:13px}
+.cust input::placeholder{color:var(--txt2)}
+.cust button{padding:7px 16px;border-radius:6px;border:none;background:var(--acc);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.btn-p{width:100%;padding:14px 20px;border-radius:10px;border:none;background:var(--acc);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.btn-r{padding:14px 20px;border-radius:10px;border:1px solid var(--brd);background:transparent;color:var(--txt);font-size:15px;cursor:pointer}
+.ctrl{display:flex;gap:8px;margin-bottom:20px}
+.meta{font-size:13px;opacity:.5;margin-bottom:12px}
+.meta strong{opacity:1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.abtn{padding:14px 10px;border-radius:10px;border:1px solid var(--brd);background:rgba(255,255,255,0.03);cursor:pointer;text-align:center;color:var(--txt);transition:all .12s}
+.abtn:hover:not(.lk){border-color:var(--acc);background:var(--acc-d)}
+.abtn.ok{border:2px solid var(--grn);background:var(--grn-d)}
+.abtn.wr{border:2px solid var(--red);background:var(--red-d)}
+.abtn .nm{font-size:14px;font-weight:600}
+.abtn .st{font-size:11px;opacity:.45;margin-top:2px;font-family:monospace}
+.stats{display:flex;justify-content:center;gap:24px;padding:14px 0;border-top:1px solid var(--brd);margin-top:8px;font-size:13px}
+.pct{font-weight:700}
+.rst{background:none;border:none;color:var(--txt);opacity:.5;cursor:pointer;text-decoration:underline;font-size:12px}
+.empty{text-align:center;padding:40px;opacity:.5;font-size:15px}
+.tempo-r{display:flex;align-items:center;gap:12px}
+.tempo-r span{font-size:12px;opacity:.5}
+.tempo-r input{flex:1;accent-color:var(--acc)}
+.chk-l{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:14px;cursor:pointer}
+.chk-l input{accent-color:var(--acc)}
+.ftr{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:10px 16px;font-size:11px;opacity:.35;line-height:1.4;background:var(--bg)}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-const NOTE_NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const DEFAULT=[
-  {name:"Lydian",steps:[2,2,2],on:true},
-  {name:"Ionian (Major)",steps:[2,2,1],on:true},
-  {name:"Mixolydian",steps:[2,1,2],on:true},
-  {name:"Dorian",steps:[2,1,2],on:true},
-  {name:"Aeolian (Minor)",steps:[2,1,2],on:false},
-  {name:"Phrygian",steps:[1,2,2],on:true},
-  {name:"Locrian",steps:[1,2,1],on:false},
-  {name:"Harm. Minor Upper",steps:[1,3,1],on:false},
-  {name:"Chromatic",steps:[1,1,1],on:false},
-  {name:"Whole Tone",steps:[2,2,2],on:false},
-];
-
-let state={
-  tets:JSON.parse(JSON.stringify(DEFAULT)),
-  dir:"up",tempo:0.45,showSteps:true,
-  rootKey:"random",rootOct:4,
-  view:"train",q:null,sel:null,res:null,
-  correct:0,total:0
+const NN=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const INST=["piano","epiano","vibes","synth"];
+const LB={
+en:{title:"Felipe's Tetrachord Ear Trainer",train:"Train",setup:"Setup",start:"Start",next:"Next",replay:"Replay",direction:"Direction",up:"Up",down:"Down",updown:"Up & Down",random:"Random",rootKey:"Root Key",octave:"Octave",tempo:"Tempo",fast:"Fast",slow:"Slow",showSteps:"Show semitone steps on buttons",instrument:"Instrument",presets:"Training Mode",basic:"Basic",advanced:"Advanced",superAdvanced:"Super Advanced",all:"All",customTitle:"Add Custom Tetrachord",namePh:"Name",stepsPh:"Steps (e.g. 2 1 2)",add:"Add",reset:"Reset",dir:"Direction",key:"Key",root:"Root",tetrachords:"Tetrachords",enableMin:"Enable at least 2 tetrachords in Setup to start training.",credit:"Created by Felipe Jaramillo Fonnegra.",insp:'Inspired by Ron Miller "Modal Jazz Composition & Harmony" Appendix 2',piano:"Acoustic Piano",epiano:"Electric Piano",vibes:"Vibraphone",synth:"Synth (FM)"},
+es:{title:"Entrenador de Tetracordios de Felipe",train:"Entrenar",setup:"Configuración",start:"Iniciar",next:"Siguiente",replay:"Repetir",direction:"Dirección",up:"Ascendente",down:"Descendente",updown:"Asc. y Desc.",random:"Aleatorio",rootKey:"Nota raíz",octave:"Octava",tempo:"Tempo",fast:"Rápido",slow:"Lento",showSteps:"Mostrar semitonos en botones",instrument:"Instrumento",presets:"Modo de entrenamiento",basic:"Básico",advanced:"Avanzado",superAdvanced:"Super Avanzado",all:"Todos",customTitle:"Agregar tetracordio personalizado",namePh:"Nombre",stepsPh:"Pasos (ej. 2 1 2)",add:"Agregar",reset:"Reiniciar",dir:"Dirección",key:"Nota",root:"Raíz",tetrachords:"Tetracordios",enableMin:"Activa al menos 2 tetracordios en Configuración para comenzar.",credit:"Creado por Felipe Jaramillo Fonnegra.",insp:'Inspirado en Ron Miller "Modal Jazz Composition & Harmony" Apéndice 2',piano:"Piano acústico",epiano:"Piano eléctrico",vibes:"Vibráfono",synth:"Sintetizador (FM)"}
 };
 
-// Audio
+const GROUPS={
+basic:[{name:"Lydian",steps:[2,2,2]},{name:"Ionian",steps:[2,2,1]},{name:"Dorian",steps:[2,1,2]},{name:"Phrygian",steps:[1,2,2]}],
+advanced:[{name:"Hungarian Major",steps:[3,1,2]},{name:"Hungarian Minor",steps:[2,1,3]},{name:"Harmonic",steps:[1,3,1]},{name:"Spanish",steps:[1,2,1]}],
+superAdvanced:[{name:"Dorian ♭4",steps:[2,1,1]},{name:"Blues 31",steps:[3,1,1]},{name:"Blues 32",steps:[3,2,1]},{name:"Hungarian Pentatonic",steps:[2,3,1]},{name:"Hungarian Phrygian",steps:[1,2,3]},{name:"Hungarian Spanish",steps:[1,3,2]},{name:"Firebird I",steps:[1,1,4]},{name:"Firebird II",steps:[4,1,1]}]
+};
+
+let S={
+tets:[...GROUPS.basic.map(t=>({...t,g:"basic",on:true})),...GROUPS.advanced.map(t=>({...t,g:"advanced",on:false})),...GROUPS.superAdvanced.map(t=>({...t,g:"superAdvanced",on:false}))],
+lang:"en",dir:"up",tempo:.45,showSteps:true,inst:"piano",rk:"random",ro:4,
+view:"train",q:null,sel:null,res:null,c:0,t:0
+};
+
 let actx=null;
-function getCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();return actx;}
-function playNote(midi,t,dur=0.5,vol=0.35){const c=getCtx(),o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type="triangle";o.frequency.value=440*Math.pow(2,(midi-69)/12);f.type="lowpass";f.frequency.value=2000;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.02);g.gain.setValueAtTime(vol,t+dur-0.08);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);}
-function playTet(root,steps,dir,tempo){const c=getCtx(),now=c.currentTime+0.05;let ns=[root];let cur=root;for(const s of steps){cur+=s;ns.push(cur);}if(dir==="down")ns=ns.reverse();if(dir==="updown")ns=[...ns,...ns.slice(0,-1).reverse()];ns.forEach((n,i)=>playNote(n,now+i*tempo,tempo+0.05));}
-
-function render(){
-  const S=state,en=S.tets.filter(t=>t.on),pct=S.total>0?Math.round(S.correct/S.total*100):0;
-  let h=`<div class="header"><h1>Felipe's Tetrachord Ear Trainer</h1><div class="tabs">
-    <button class="tab ${S.view==="train"?"active":""}" onclick="sv('train')">Train</button>
-    <button class="tab ${S.view==="setup"?"active":""}" onclick="sv('setup')">Setup</button></div></div>`;
-
-  if(S.view==="setup"){
-    h+=`<div class="section"><h3>Tetrachords</h3>`;
-    S.tets.forEach((t,i)=>{
-      h+=`<div class="tet-row"><input type="checkbox" ${t.on?"checked":""} onchange="tog(${i})"><span class="tet-name">${t.name}</span><span class="tet-steps">${t.steps.join("-")}</span>${i>=DEFAULT.length?`<button class="remove-btn" onclick="rem(${i})">×</button>`:""}</div>`;
-    });
-    h+=`</div><div class="custom-box"><h4>Add Custom Tetrachord</h4><div class="row">
-      <input id="cn" placeholder="Name"><input id="cs" placeholder="Steps (e.g. 2 1 2)">
-      <button onclick="addC()">Add</button></div></div>`;
-
-    // Root Key
-    h+=`<div class="section"><h3>Root Key</h3><div class="pill-btns">`;
-    h+=`<button class="pill ${S.rootKey==="random"?"active":""}" onclick="srk('random')">Random</button>`;
-    NOTE_NAMES.forEach(n=>{
-      h+=`<button class="pill ${S.rootKey===n?"active":""}" onclick="srk('${n}')">${n}</button>`;
-    });
-    h+=`</div>`;
-    if(S.rootKey!=="random"){
-      h+=`<div class="oct-row"><span>Octave:</span>`;
-      [2,3,4,5].forEach(o=>{
-        h+=`<button class="pill ${S.rootOct===o?"active":""}" onclick="sro(${o})" style="min-width:32px">${o}</button>`;
-      });
-      h+=`</div>`;
-    }
-    h+=`</div>`;
-
-    // Direction
-    h+=`<div class="section"><h3>Direction</h3><div class="pill-btns">`;
-    ["up","down","updown","random"].forEach(d=>{
-      const label=d==="updown"?"Up & Down":d[0].toUpperCase()+d.slice(1);
-      h+=`<button class="pill ${S.dir===d?"active":""}" onclick="sd('${d}')">${label}</button>`;
-    });
-    h+=`</div></div>`;
-
-    h+=`<div class="section"><h3>Tempo</h3><div class="tempo-row"><span>Fast</span><input type="range" min="0.2" max="0.8" step="0.05" value="${S.tempo}" oninput="st(this.value)"><span>Slow</span></div></div>`;
-    h+=`<label class="show-steps-label"><input type="checkbox" ${S.showSteps?"checked":""} onchange="ss(this.checked)">Show semitone steps on answer buttons</label>`;
-  } else {
-    if(en.length<2){
-      h+=`<div class="empty-state">Enable at least 2 tetrachords in Setup to start training.</div>`;
-    } else {
-      h+=`<div class="controls"><button class="btn-primary" onclick="nq()" style="flex:1">${S.q?"Next":"Start"}</button>`;
-      if(S.q)h+=`<button class="btn-replay" onclick="rp()">🔁 Replay</button>`;
-      h+=`</div>`;
-      if(S.q){
-        h+=`<p class="meta">`;
-        if(S.rootKey!=="random") h+=`Key: <strong>${S.rootKey}${S.rootOct}</strong> &nbsp;|&nbsp; `;
-        h+=`Direction: <strong>${S.q.dir}</strong>`;
-        if(S.res!==null && S.rootKey==="random"){const rn=NOTE_NAMES[S.q.root%12]+Math.floor(S.q.root/12-1);h+=` &nbsp;|&nbsp; Root: <strong>${rn}</strong>`;}
-        h+=`</p><div class="grid">`;
-        en.forEach((t,i)=>{
-          const isCorr=S.res!==null&&t.name===S.q.tet.name&&t.steps.join()===S.q.tet.steps.join();
-          const isWrong=S.res!==null&&S.sel&&t.name===S.sel.name&&t.steps.join()===S.sel.steps.join()&&!isCorr;
-          const cls=isCorr?"correct":isWrong?"wrong":"";
-          const lock=S.res!==null?"locked":"";
-          h+=`<button class="answer-btn ${cls} ${lock}" onclick="ans(${i})"><div class="name">${t.name}</div>${S.showSteps?`<div class="steps">${t.steps.join("-")}</div>`:""}</button>`;
-        });
-        h+=`</div>`;
-      }
-      if(S.total>0){
-        const pc=pct>=70?"good":pct>=40?"mid":"low";
-        h+=`<div class="stats"><span><strong>${S.correct}</strong>/${S.total}</span><span class="pct ${pc}">${pct}%</span><button class="reset-btn" onclick="rst()">Reset</button></div>`;
-      }
-    }
-  }
-  document.getElementById("app").innerHTML=h;
+function gCtx(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();return actx;}
+function playFM(midi,t,dur,vol,pr){
+const c=gCtx(),f0=440*Math.pow(2,(midi-69)/12);
+let ra,ix,aF,dF,sF,rF,aA,sA;
+if(pr==="piano"){ra=1;ix=2.5;aF=.001;dF=dur*.3;sF=.4;rF=dur*.5;aA=.005;sA=.25;}
+else if(pr==="epiano"){ra=7;ix=1.8;aF=.001;dF=dur*.4;sF=.3;rF=dur*.4;aA=.003;sA=.3;}
+else if(pr==="vibes"){ra=4;ix=.8;aF=.001;dF=dur*.5;sF=.15;rF=dur*.6;aA=.003;sA=.35;}
+else{ra=1;ix=3;aF=.01;dF=dur*.2;sF=.6;rF=dur*.3;aA=.01;sA=.4;}
+const m=c.createOscillator(),mg=c.createGain(),cr=c.createOscillator(),cg=c.createGain();
+m.type="sine";m.frequency.value=f0*ra;
+mg.gain.setValueAtTime(f0*ix,t);mg.gain.linearRampToValueAtTime(f0*ix,t+aF);mg.gain.exponentialRampToValueAtTime(f0*ix*sF+.01,t+aF+dF);mg.gain.linearRampToValueAtTime(.01,t+dur);
+cr.type="sine";cr.frequency.value=f0;
+cg.gain.setValueAtTime(0,t);cg.gain.linearRampToValueAtTime(vol,t+aA);cg.gain.setValueAtTime(vol*sA,t+dur*.5);cg.gain.linearRampToValueAtTime(0,t+dur);
+m.connect(mg);mg.connect(cr.frequency);cr.connect(cg);cg.connect(c.destination);
+m.start(t);m.stop(t+dur+.05);cr.start(t);cr.stop(t+dur+.05);
+}
+function playTet(root,steps,dir,tempo,inst){
+const c=gCtx(),now=c.currentTime+.05;let ns=[root],cur=root;
+for(const s of steps){cur+=s;ns.push(cur);}
+if(dir==="down")ns=ns.reverse();
+if(dir==="updown")ns=[...ns,...ns.slice(0,-1).reverse()];
+ns.forEach((n,i)=>playFM(n,now+i*tempo,tempo+.12,.32,inst));
 }
 
-function sv(v){state.view=v;render();}
-function tog(i){state.tets[i].on=!state.tets[i].on;render();}
-function rem(i){state.tets.splice(i,1);render();}
-function sd(d){state.dir=d;render();}
-function st(v){state.tempo=parseFloat(v);}
-function ss(v){state.showSteps=v;render();}
-function srk(k){state.rootKey=k;render();}
-function sro(o){state.rootOct=o;render();}
-function rst(){state.correct=0;state.total=0;state.q=null;state.sel=null;state.res=null;render();}
+function render(){
+const L=LB[S.lang],en=S.tets.filter(t=>t.on),pct=S.t>0?Math.round(S.c/S.t*100):0;
+const glbl=g=>g==="basic"?L.basic:g==="advanced"?L.advanced:g==="superAdvanced"?L.superAdvanced:"Custom";
+let h=`<div class="hdr"><h1>${L.title}</h1>
+<div class="lang-sw">${["en","es"].map(l=>`<button class="lang-btn ${S.lang===l?"a":""}" onclick="sl('${l}')">${l.toUpperCase()}</button>`).join("")}</div>
+<div class="tabs">${[["train",L.train],["setup",L.setup]].map(([v,l])=>`<button class="tab ${S.view===v?"a":""}" onclick="sv('${v}')">${l}</button>`).join("")}</div></div>`;
+
+if(S.view==="setup"){
+// Presets
+h+=`<div class="sec-t">${L.presets}</div><div class="pills">
+<button class="pill" onclick="ap('basic')">${L.basic}</button>
+<button class="pill" onclick="ap('advanced')">${L.basic} + ${L.advanced}</button>
+<button class="pill" onclick="ap('all')">${L.all}</button></div>`;
+
+// Tetrachords
+["basic","advanced","superAdvanced","custom"].forEach(g=>{
+const gr=S.tets.filter(t=>t.g===g);if(!gr.length)return;
+h+=`<div class="grp-t">${glbl(g)}</div>`;
+gr.forEach(t=>{const i=S.tets.indexOf(t);
+h+=`<div class="row"><input type="checkbox" ${t.on?"checked":""} onchange="tog(${i})"><span class="nm">${t.name}</span><span class="st">${t.steps.join("-")}</span>${t.g==="custom"?`<button class="rm" onclick="rem(${i})">×</button>`:""}</div>`;
+});});
+
+// Custom
+h+=`<div class="cust"><h4>${L.customTitle}</h4><div class="fr">
+<input id="cn" placeholder="${L.namePh}"><input id="cs" placeholder="${L.stepsPh}">
+<button onclick="addC()">${L.add}</button></div></div>`;
+
+// Root Key
+h+=`<div class="sec-t">${L.rootKey}</div><div class="pills">
+<button class="pill ${S.rk==="random"?"a":""}" onclick="srk('random')">${L.random}</button>`;
+NN.forEach(n=>{h+=`<button class="pill sm ${S.rk===n?"a":""}" onclick="srk('${n}')">${n}</button>`;});
+h+=`</div>`;
+if(S.rk!=="random"){h+=`<div style="display:flex;align-items:center;gap:8px;margin-top:4px"><span style="font-size:13px;opacity:.5">${L.octave}:</span>`;
+[2,3,4,5].forEach(o=>{h+=`<button class="pill sm ${S.ro===o?"a":""}" onclick="sro(${o})">${o}</button>`;});h+=`</div>`;}
+
+// Direction
+h+=`<div class="sec-t">${L.direction}</div><div class="pills">`;
+["up","down","updown","random"].forEach(d=>{h+=`<button class="pill ${S.dir===d?"a":""}" onclick="sd('${d}')">${L[d]}</button>`;});
+h+=`</div>`;
+
+// Instrument
+h+=`<div class="sec-t">${L.instrument}</div><div class="pills">`;
+INST.forEach(i=>{h+=`<button class="pill ${S.inst===i?"a":""}" onclick="si('${i}')">${L[i]}</button>`;});
+h+=`</div>`;
+
+// Tempo
+h+=`<div class="sec-t">${L.tempo}</div><div class="tempo-r"><span>${L.fast}</span><input type="range" min="0.2" max="0.8" step="0.05" value="${S.tempo}" oninput="st(this.value)"><span>${L.slow}</span></div>`;
+
+h+=`<label class="chk-l"><input type="checkbox" ${S.showSteps?"checked":""} onchange="ss(this.checked)">${L.showSteps}</label>`;
+
+} else {
+if(en.length<2){h+=`<div class="empty">${L.enableMin}</div>`;}
+else{
+h+=`<div class="ctrl"><button class="btn-p" style="flex:1" onclick="nq()">${S.q?L.next:L.start}</button>`;
+if(S.q)h+=`<button class="btn-r" onclick="rp()">🔁 ${L.replay}</button>`;
+h+=`</div>`;
+if(S.q){
+h+=`<p class="meta">`;
+if(S.rk!=="random")h+=`${L.key}: <strong>${S.rk}${S.ro}</strong> &nbsp;|&nbsp; `;
+h+=`${L.dir}: <strong>${L[S.q.dir]}</strong>`;
+if(S.res!==null&&S.rk==="random"){const rn=NN[S.q.root%12]+Math.floor(S.q.root/12-1);h+=` &nbsp;|&nbsp; ${L.root}: <strong>${rn}</strong>`;}
+h+=`</p><div class="grid">`;
+en.forEach((t,i)=>{
+const ok=S.res!==null&&t.name===S.q.tet.name;
+const wr=S.res!==null&&S.sel&&t.name===S.sel.name&&!ok;
+h+=`<button class="abtn ${ok?"ok":""}${wr?"wr":""} ${S.res!==null?"lk":""}" onclick="ans(${i})"><div class="nm">${t.name}</div>${S.showSteps?`<div class="st">${t.steps.join("-")}</div>`:""}</button>`;
+});h+=`</div>`;}
+if(S.t>0){const pc=pct>=70?"#2ecc71":pct>=40?"#f39c12":"#e74c3c";
+h+=`<div class="stats"><span><strong>${S.c}</strong>/${S.t}</span><span class="pct" style="color:${pc}">${pct}%</span><button class="rst" onclick="rst()">${L.reset}</button></div>`;}
+}}
+
+h+=`<div class="ftr">${L.credit}<br>${L.insp}</div>`;
+document.getElementById("app").innerHTML=h;
+}
+
+function sl(l){S.lang=l;render();}
+function sv(v){S.view=v;render();}
+function tog(i){S.tets[i].on=!S.tets[i].on;render();}
+function rem(i){S.tets.splice(i,1);render();}
+function sd(d){S.dir=d;render();}
+function si(i){S.inst=i;render();}
+function st(v){S.tempo=parseFloat(v);}
+function ss(v){S.showSteps=v;render();}
+function srk(k){S.rk=k;render();}
+function sro(o){S.ro=o;render();}
+function rst(){S.c=0;S.t=0;S.q=null;S.sel=null;S.res=null;render();}
+
+function ap(p){
+S.tets.forEach(t=>{
+if(p==="basic")t.on=t.g==="basic";
+else if(p==="advanced")t.on=t.g==="basic"||t.g==="advanced";
+else t.on=true;
+});render();}
 
 function addC(){
-  const n=document.getElementById("cn").value.trim();
-  const s=document.getElementById("cs").value.split(/[\s,]+/).map(Number).filter(x=>x>0&&x<5);
-  if(!n||s.length<2)return;
-  state.tets.push({name:n,steps:s,on:true});render();
+const n=document.getElementById("cn").value.trim();
+const s=document.getElementById("cs").value.split(/[\s,]+/).map(Number).filter(x=>x>0&&x<6);
+if(!n||s.length<2)return;
+S.tets.push({name:n,steps:s,g:"custom",on:true});render();
 }
 
 function nq(){
-  const en=state.tets.filter(t=>t.on);
-  if(en.length<2)return;
-  const tet=en[Math.floor(Math.random()*en.length)];
-  let root;
-  if(state.rootKey==="random"){root=48+Math.floor(Math.random()*25);}
-  else{const ki=NOTE_NAMES.indexOf(state.rootKey);root=(state.rootOct+1)*12+ki;}
-  const dir=state.dir==="random"?(Math.random()>0.5?"up":"down"):state.dir;
-  state.q={tet,root,dir};state.sel=null;state.res=null;
-  render();playTet(root,tet.steps,dir,state.tempo);
+const en=S.tets.filter(t=>t.on);if(en.length<2)return;
+const tet=en[Math.floor(Math.random()*en.length)];
+let root;if(S.rk==="random")root=48+Math.floor(Math.random()*25);
+else root=(S.ro+1)*12+NN.indexOf(S.rk);
+const dir=S.dir==="random"?(Math.random()>.5?"up":"down"):S.dir;
+S.q={tet,root,dir};S.sel=null;S.res=null;
+render();playTet(root,tet.steps,dir,S.tempo,S.inst);
 }
-
-function rp(){if(!state.q)return;playTet(state.q.root,state.q.tet.steps,state.q.dir,state.tempo);}
-
+function rp(){if(!S.q)return;playTet(S.q.root,S.q.tet.steps,S.q.dir,S.tempo,S.inst);}
 function ans(i){
-  if(state.res!==null)return;
-  const en=state.tets.filter(t=>t.on),t=en[i];
-  const correct=t.name===state.q.tet.name&&t.steps.join()===state.q.tet.steps.join();
-  state.sel=t;state.res=correct;state.total++;if(correct)state.correct++;
-  render();
+if(S.res!==null)return;
+const en=S.tets.filter(t=>t.on),t=en[i];
+const ok=t.name===S.q.tet.name;
+S.sel=t;S.res=ok;S.t++;if(ok)S.c++;render();
 }
-
 render();
 </script>
 </body>
