@@ -90,13 +90,14 @@ if(pr==="piano"){ra=1;ix=2.5;aF=.001;dF=dur*.3;sF=.4;rF=dur*.5;aA=.005;sA=.25;}
 else if(pr==="epiano"){ra=7;ix=1.8;aF=.001;dF=dur*.4;sF=.3;rF=dur*.4;aA=.003;sA=.3;}
 else if(pr==="vibes"){ra=4;ix=.8;aF=.001;dF=dur*.5;sF=.15;rF=dur*.6;aA=.003;sA=.35;}
 else{ra=1;ix=3;aF=.01;dF=dur*.2;sF=.6;rF=dur*.3;aA=.01;sA=.4;}
+const rl=0.3,tt=dur+rl;
 const m=c.createOscillator(),mg=c.createGain(),cr=c.createOscillator(),cg=c.createGain();
 m.type="sine";m.frequency.value=f0*ra;
-mg.gain.setValueAtTime(f0*ix,t);mg.gain.linearRampToValueAtTime(f0*ix,t+aF);mg.gain.exponentialRampToValueAtTime(f0*ix*sF+.01,t+aF+dF);mg.gain.linearRampToValueAtTime(.01,t+dur);
+mg.gain.setValueAtTime(f0*ix,t);mg.gain.linearRampToValueAtTime(f0*ix,t+aF);mg.gain.exponentialRampToValueAtTime(f0*ix*sF+.01,t+aF+dF);mg.gain.linearRampToValueAtTime(.01,t+dur);mg.gain.linearRampToValueAtTime(.001,t+tt);
 cr.type="sine";cr.frequency.value=f0;
-cg.gain.setValueAtTime(0,t);cg.gain.linearRampToValueAtTime(vol,t+aA);cg.gain.setValueAtTime(vol*sA,t+dur*.5);cg.gain.linearRampToValueAtTime(0,t+dur);
+cg.gain.setValueAtTime(0,t);cg.gain.linearRampToValueAtTime(vol,t+aA);cg.gain.setValueAtTime(vol*sA,t+dur*.5);cg.gain.exponentialRampToValueAtTime(.001,t+tt);
 m.connect(mg);mg.connect(cr.frequency);cr.connect(cg);cg.connect(c.destination);
-m.start(t);m.stop(t+dur+.05);cr.start(t);cr.stop(t+dur+.05);
+m.start(t);m.stop(t+tt+.05);cr.start(t);cr.stop(t+tt+.05);
 }
 function playTet(root,steps,dir,tempo,inst){
 const c=gCtx(),now=c.currentTime+.05;let ns=[root],cur=root;
